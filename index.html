@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #99a8f0;
+            --secondary: #f8f9fa;
+            --danger: #ef476f;
+            --success: #06d6a0;
+            --warning: #ffd166;
+            --dark: #212529;
+            --light: #f8f9fa;
+            --tab-inactive: #e1e7fd;
+            --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --hover-shadow: 0 8px 20px rgba(67, 97, 238, 0.15);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7ff 0%, #e9f0ff 100%);
+            color: var(--dark);
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
+        header {
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-weight: 700;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            position: relative;
+        }
+
+        h1:after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 4px;
+            background-color: var(--primary);
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            width: 100%;
+            box-shadow: var(--card-shadow);
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: white;
+            position: relative;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            cursor: pointer;
+            background-color: white;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: var(--transition);
+            text-align: center;
+            color: var(--dark);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .tab:before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: var(--tab-inactive);
+            transition: var(--transition);
+        }
+
+        .tab:hover:before {
+            background-color: var(--primary-light);
+        }
+
+        .tab.active {
+            color: var(--primary);
+        }
+
+        .tab.active:before {
+            background-color: var(--primary);
+        }
+
+        .todo-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 25px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .todo-form:hover {
+            box-shadow: var(--hover-shadow);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        input, select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+            background-color: var(--light);
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            outline: none;
+        }
+
+        input {
+            flex-grow: 1;
+        }
+
+        button {
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border: none;
+        }
+
+        .btn-add {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-add:hover {
+            background-color: #3355ee;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        .todo-list {
+            list-style: none;
+            perspective: 1000px;
+        }
+
+        .todo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            margin-bottom: 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            border-left: 5px solid transparent;
+            animation: fadeIn 0.5s ease forwards;
+            transform-origin: center;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .todo-item:hover {
+            box-shadow: var(--hover-shadow);
+            transform: translateY(-3px);
+        }
+
+        .todo-item.priority-high {
+            border-left-color: var(--danger);
+        }
+
+        .todo-item.priority-medium {
+            border-left-color: var(--warning);
+        }
+
+        .todo-item.priority-low {
+            border-left-color: var(--success);
+        }
+
+        .todo-content {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .todo-text {
+            flex-grow: 1;
+            font-size: 16px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .completed .todo-text {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .priority-indicator {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .priority-high {
+            background-color: var(--danger);
+        }
+
+        .priority-medium {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+
+        .priority-low {
+            background-color: var(--success);
+        }
+
+        .todo-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-complete {
+            background-color: var(--success);
+            color: white;
+            padding: 8px 12px;
+        }
+
+        .btn-complete:hover {
+            background-color: #05b389;
+            transform: translateY(-2px);
+        }
+
+        .btn-delete {
+            background-color: var(--danger);
+            color: white;
+            padding: 8px 12px;
+        }
+
+        .btn-delete:hover {
+            background-color: #e23a64;
+            transform: translateY(-2px);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            font-size: 16px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .empty-message:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background-color: var(--primary-light);
+        }
+
+        .tab-count {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-size: 12px;
+            margin-left: 8px;
+            font-weight: 700;
+        }
+
+        .date-display {
+            font-size: 14px;
+            color: #777;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 600px) {
+            .form-row {
+                flex-direction: column;
+            }
+
+            .todo-actions {
+                flex-direction: column;
+            }
+
+            .tab {
+                padding: 12px 10px;
+                font-size: 14px;
+            }
+
+            .todo-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+
+            .todo-actions {
+                flex-direction: row;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Dark mode toggle */
+        .theme-switch-wrapper {
+            position: absolute;
+            top: 10px;
+            right: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-switch {
+            display: inline-block;
+            height: 24px;
+            position: relative;
+            width: 48px;
+        }
+
+        .theme-switch input {
+            display: none;
+        }
+
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            background-color: white;
+            bottom: 4px;
+            content: "";
+            height: 16px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 16px;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Animation for adding/removing todos */
+        .todo-item.removing {
+            animation: fadeOut 0.3s ease forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateX(50px) scale(0.95);
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="theme-switch-wrapper">
+        <label class="theme-switch" for="checkbox">
+            <input type="checkbox" id="checkbox" />
+            <div class="slider"></div>
+        </label>
+    </div>
+    <h1>Todo Manager</h1>
+    <div class="date-display" id="current-date"></div>
+</header>
+
+<div class="tabs" id="tabs-container">
+    <button class="tab active" data-tab="active">Active <span class="tab-count" id="active-count">0</span></button>
+    <button class="tab" data-tab="completed">Completed <span class="tab-count" id="completed-count">0</span></button>
+    <button class="tab" data-tab="all">All <span class="tab-count" id="all-count">0</span></button>
+</div>
+
+<form class="todo-form">
+    <div class="form-row">
+        <input type="text" id="todo-input" placeholder="What needs to be done?" required>
+    </div>
+    <div class="form-row">
+        <select id="priority-select">
+            <option value="high">High Priority</option>
+            <option value="medium" selected>Medium Priority</option>
+            <option value="low">Low Priority</option>
+        </select>
+        <button type="submit" class="btn-add"><i class="fas fa-plus"></i> Add Task</button>
+    </div>
+</form>
+
+<ul class="todo-list"></ul>
+
+<script>
+    // Store todos in local storage to persist data
+    let todos = JSON.parse(localStorage.getItem('todos')) || [];
+    let currentTab = 'active';
+    let darkMode = localStorage.getItem('darkMode') === 'true';
+
+    // DOM Elements
+    const todoForm = document.querySelector('.todo-form');
+    const todoInput = document.getElementById('todo-input');
+    const prioritySelect = document.getElementById('priority-select');
+    const todoList = document.querySelector('.todo-list');
+    const tabs = document.querySelectorAll('.tab');
+    const checkbox = document.getElementById('checkbox');
+    const dateDisplay = document.getElementById('current-date');
+    const activeCount = document.getElementById('active-count');
+    const completedCount = document.getElementById('completed-count');
+    const allCount = document.getElementById('all-count');
+
+    // Set up date display
+    const today = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    dateDisplay.textContent = today.toLocaleDateString('en-US', options);
+
+    // Set up dark mode
+    checkbox.checked = darkMode;
+    if (darkMode) {
+        document.body.classList.add('dark-mode');
+    }
+
+    // Event Listeners
+    todoForm.addEventListener('submit', addTodo);
+    tabs.forEach(tab => tab.addEventListener('click', changeTab));
+    checkbox.addEventListener('change', toggleDarkMode);
+
+    // Initialize the app
+    renderTodos();
+    updateCounts();
+
+    // Functions
+    function addTodo(e) {
+        e.preventDefault();
+
+        const text = todoInput.value.trim();
+        if (text === '') return;
+
+        const newTodo = {
+            id: Date.now(),
+            text,
+            priority: prioritySelect.value,
+            completed: false,
+            createdAt: new Date().toISOString()
+        };
+
+        todos.push(newTodo);
+        saveTodos();
+        renderTodos();
+        updateCounts();
+
+        // Reset form
+        todoInput.value = '1';
+        prioritySelect.value = 'medium';
+        todoInput.focus();
+    }
+
+    function saveTodos() {
+        localStorage.setItem('todos', JSON.stringify(todos));
+    }
+
+    function renderTodos() {
+        let filteredTodos = [...todos];
+
+        // Filter based on current tab
+        if (currentTab === 'active') {
+            filteredTodos = filteredTodos.filter(todo => !todo.completed);
+        } else if (currentTab === 'completed') {
+            filteredTodos = filteredTodos.filter(todo => todo.completed);
+        }
+
+        // Sort by priority (high > medium > low)
+        filteredTodos.sort((a, b) => {
+            const priorityOrder = { high: 1, medium: 2, low: 3 };
+            return priorityOrder[a.priority] - priorityOrder[b.priority];
+        });
+
+        todoList.innerHTML = '';
+
+        if (filteredTodos.length === 0) {
+            todoList.innerHTML = `
+                    <div class="empty-message">
+                        <i class="fas fa-clipboard-list"></i> No ${currentTab === 'all' ? '' : currentTab} tasks found.
+                    </div>
+                `;
+            return;
+        }
+
+        filteredTodos.forEach(todo => {
+            const todoItem = document.createElement('li');
+            todoItem.className = `todo-item priority-${todo.priority} ${todo.completed ? 'completed' : ''}`;
+            todoItem.dataset.id = todo.id;
+
+            let priorityIcon = 'exclamation-circle';
+            if (todo.priority === 'medium') priorityIcon = 'flag';
+            if (todo.priority === 'low') priorityIcon = 'check-circle';
+
+            todoItem.innerHTML = `
+                    <div class="todo-content">
+                        <div class="priority-indicator priority-${todo.priority}">
+                            <i class="fas fa-${priorityIcon}"></i>
+                        </div>
+                        <div class="todo-text">${todo.text}</div>
+                    </div>
+                    <div class="todo-actions">
+                        <button class="btn-complete" data-id="${todo.id}">
+                            <i class="fas fa-${todo.completed ? 'redo' : 'check'}"></i>
+                            ${todo.completed ? 'Reopen' : 'Complete'}
+                        </button>
+                        <button class="btn-delete" data-id="${todo.id}">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+
+            todoList.appendChild(todoItem);
+        });
+
+        // Add event listeners to buttons
+        document.querySelectorAll('.btn-complete').forEach(btn => {
+            btn.addEventListener('click', toggleTodo);
+        });
+
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', deleteTodo);
+        });
+    }
+
+    function toggleTodo(e) {
+        const id = parseInt(e.target.closest('.btn-complete').dataset.id);
+        todos = todos.map(todo => {
+            if (todo.id === id) {
+                return { ...todo, completed: !todo.completed };
+            }
+            return todo;
+        });
+
+        saveTodos();
+        renderTodos();
+        updateCounts();
+    }
+
+    function deleteTodo(e) {
+        const id = parseInt(e.target.closest('.btn-delete').dataset.id);
+        const todoItem = document.querySelector(`.todo-item[data-id="${id}"]`);
+
+        // Add removing animation
+        todoItem.classList.add('removing');
+
+        // Wait for animation to complete before removing from array
+        setTimeout(() => {
+            todos = todos.filter(todo => todo.id !== id);
+            saveTodos();
+            renderTodos();
+            updateCounts();
+        }, 300);
+    }
+
+    function changeTab(e) {
+        const tab = e.target.closest('.tab').dataset.tab;
+        currentTab = tab;
+
+        // Update active tab
+        tabs.forEach(t => t.classList.remove('active'));
+        e.target.closest('.tab').classList.add('active');
+
+        renderTodos();
+    }
+
+    function toggleDarkMode() {
+        darkMode = checkbox.checked;
+        document.body.classList.toggle('dark-mode', darkMode);
+        localStorage.setItem('darkMode', darkMode);
+    }
+
+    function updateCounts() {
+        const activeTodos = todos.filter(todo => !todo.completed).length;
+        const completedTodos = todos.filter(todo => todo.completed).length;
+        const allTodos = todos.length;
+
+        activeCount.textContent = activeTodos;
+        completedCount.textContent = completedTodos;
+        allCount.textContent = allTodos;
+    }
+
+    // Add smooth scrolling when adding new todos
+    todoForm.addEventListener('submit', () => {
+        setTimeout(() => {
+            window.scrollTo({
+                top: todoForm.offsetHeight + todoForm.offsetTop,
+                behavior: 'smooth'
+            });
+        }, 300);
+    });
+</script>
+</body>
+</html>
