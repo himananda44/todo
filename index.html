@@ -9,14 +9,18 @@
     <style>
         :root {
             --primary: #4361ee;
-            --primary-light: #99a8f0;
+            --primary-light: #afb9f1;
             --secondary: #f8f9fa;
-            --danger: #ef476f;
-            --success: #06d6a0;
-            --warning: #ffd166;
+            /* Adjusted colors to be more eye-friendly and distinct from button colors */
+            --danger: #e57b97;         /* High priority - softer red */
+            --success: #6bccb4;        /* Low priority - softer green */
+            --warning: #f2d399;        /* Medium priority - softer yellow */
+            /* Button colors now distinct from task colors */
+            --btn-complete: #34a893;   /* Complete button - distinct from low priority */
+            --btn-delete: #d95570;     /* Delete button - distinct from high priority */
             --dark: #212529;
             --light: #f8f9fa;
-            --tab-inactive: #e1e7fd;
+            --tab-inactive: #e9ecfd;
             --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
             --hover-shadow: 0 8px 20px rgba(67, 97, 238, 0.15);
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -33,7 +37,7 @@
             background: linear-gradient(135deg, #f5f7ff 0%, #e9f0ff 100%);
             color: var(--dark);
             padding: 20px;
-            max-width: 800px;
+            max-width: 850px;
             margin: 0 auto;
             min-height: 100vh;
         }
@@ -122,7 +126,7 @@
             flex-direction: column;
             gap: 15px;
             margin-bottom: 25px;
-            padding: 25px;
+            padding: 20px;
             background-color: white;
             border-radius: 10px;
             box-shadow: var(--card-shadow);
@@ -190,8 +194,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px;
-            margin-bottom: 15px;
+            padding: 15px;
+            margin-bottom: 12px;
             background-color: white;
             border-radius: 10px;
             box-shadow: var(--card-shadow);
@@ -238,7 +242,7 @@
 
         .todo-text {
             flex-grow: 1;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 500;
             transition: var(--transition);
         }
@@ -249,14 +253,14 @@
         }
 
         .priority-indicator {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 12px;
+            font-size: 11px;
         }
 
         .priority-high {
@@ -278,30 +282,32 @@
         }
 
         .btn-complete {
-            background-color: var(--success);
+            background-color: var(--btn-complete);  /* Distinct from low priority color */
             color: white;
-            padding: 8px 12px;
+            padding: 6px 10px;
+            font-size: 14px;
         }
 
         .btn-complete:hover {
-            background-color: #05b389;
+            background-color: #2a8a78;  /* Darker shade for hover */
             transform: translateY(-2px);
         }
 
         .btn-delete {
-            background-color: var(--danger);
+            background-color: var(--btn-delete);  /* Distinct from high priority color */
             color: white;
-            padding: 8px 12px;
+            padding: 6px 10px;
+            font-size: 14px;
         }
 
         .btn-delete:hover {
-            background-color: #e23a64;
+            background-color: #c4405b;  /* Darker shade for hover */
             transform: translateY(-2px);
         }
 
         .empty-message {
             text-align: center;
-            padding: 30px;
+            padding: 25px;
             color: #888;
             background-color: white;
             border-radius: 10px;
@@ -357,7 +363,7 @@
             .todo-item {
                 flex-direction: column;
                 align-items: stretch;
-                gap: 15px;
+                gap: 12px;
             }
 
             .todo-actions {
@@ -527,7 +533,7 @@
         updateCounts();
 
         // Reset form
-        todoInput.value = '1';
+        todoInput.value = '';
         prioritySelect.value = 'medium';
         todoInput.focus();
     }
